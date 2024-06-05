@@ -6,6 +6,40 @@ $sentencia=$conexion->prepare("SELECT * FROM tbl_banners ORDER BY id ASC limit 1
 $sentencia->execute();
 $lista_banners=$sentencia->fetchAll(PDO::FETCH_ASSOC);
 
+$sentencia=$conexion->prepare("SELECT * FROM tbl_colaboradores ORDER BY id ASC");
+$sentencia->execute();
+$lista_colaboradores=$sentencia->fetchAll(PDO::FETCH_ASSOC);
+
+$sentencia=$conexion->prepare("SELECT * FROM tbl_testimonios ORDER BY id DESC limit 2");
+$sentencia->execute();
+$lista_testimonios=$sentencia->fetchAll(PDO::FETCH_ASSOC);
+
+$sentencia=$conexion->prepare("SELECT * FROM tbl_menu ORDER BY id DESC limit 4");
+$sentencia->execute();
+$lista_menu=$sentencia->fetchAll(PDO::FETCH_ASSOC);
+
+if($_POST){
+
+    $nombre=filter_var($_POST["nombre"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $correo=filter_var($_POST["correo"], FILTER_VALIDATE_EMAIL);
+    $mensaje=filter_var($_POST["mensaje"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    if($nombre && $correo && $mensaje){
+
+        $sql="INSERT INTO tbl_comentarios (nombre, correo, mensaje) VALUES (:nombre, :correo, :mensaje)";
+        $resultado = $conexion->prepare($sql);
+
+        $resultado->bindParam(":nombre", $nombre, PDO::PARAM_STR);
+        $resultado->bindParam(":correo", $correo, PDO::PARAM_STR);
+        $resultado->bindParam(":mensaje", $mensaje, PDO::PARAM_STR);
+        $resultado->execute();
+
+    }
+
+    header("location:index.php");
+
+}
+
 ?>
 
 <!doctype html>
@@ -23,7 +57,7 @@ $lista_banners=$sentencia->fetchAll(PDO::FETCH_ASSOC);
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrencepolicy="no-referrer"/>
     </head>
 
-    <body>
+    <body class="bg-light">
 
         <!--Navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="Fifth navbar example">
@@ -61,10 +95,7 @@ $lista_banners=$sentencia->fetchAll(PDO::FETCH_ASSOC);
             <div class="banner-img" style="position:relative; background:url('images/slider-image1.jpg') center/cover no-repeat; height:400px; ">
                 <div class="banner-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center" >
                     
-                    <?php
-
-                        foreach($lista_banners as $banner){
-                    ?>
+                    <?php foreach($lista_banners as $banner){ ?>
 
                     <h1 class="text-light"><?php echo $banner['titulo']?></h1>
                     <p class="text-light"><?php echo $banner['descripcion']?></p>
@@ -94,54 +125,26 @@ $lista_banners=$sentencia->fetchAll(PDO::FETCH_ASSOC);
             <h2>Nuestros Chefs</h2>
 
             <div class="row">
+
+                <?php foreach($lista_colaboradores as $colaborador){ ?>
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="images/colaboradores/team-image1.jpg" alt="Chef 1" class="card-img-top">
+                        <img src="images/colaboradores/<?php echo $colaborador["foto"];?>" alt="Chef" class="card-img-top">
                         <div class="card-body">
                             <div class="card-title">
-                                <p class="card-text">Chef Alamé</p>
+                                <p class="card-text"><?php echo $colaborador["titulo"]; ?></p>
+                                <p class="card-text"><?php echo $colaborador["descripcion"]; ?></p>
                                 <div class="social-icons mt-3">
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-facebook"></i></a>
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-instagram"></i></a>
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-linkedin"></i></a>
+                                    <a href="<?php echo $colaborador["linkfacebook"]; ?>" class="text-dark me-2"><i class="fab fa-facebook"></i></a>
+                                    <a href="<?php echo $colaborador["linkinstagram"]; ?>" class="text-dark me-2"><i class="fab fa-instagram"></i></a>
+                                    <a href="<?php echo $colaborador["linklinkedin"]; ?>" class="text-dark me-2"><i class="fab fa-linkedin"></i></a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <?php } ?>
 
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="images/colaboradores/team-image4.jpg" alt="Chef 2" class="card-img-top">
-                        <div class="card-body">
-                            <div class="card-title">
-                                <p class="card-text">a</p>
-                                <div class="social-icons mt-3">
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-facebook"></i></a>
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-instagram"></i></a>
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-linkedin"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-
-                    <div class="card">
-                        <img src="images/colaboradores/team-image5.jpg" alt="Chef 3" class="card-img-top">
-                        <div class="card-body">
-                            <div class="card-title">
-                                <p class="card-text">Chef Alamé</p>
-                                <div class="social-icons mt-3">
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-facebook"></i></a>                                        
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-instagram"></i></a>
-                                    <a href="#" class="text-dark me-2"><i class="fab fa-linkedin"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>        
             </div>
         </section>
         <br><br>
@@ -152,31 +155,20 @@ $lista_banners=$sentencia->fetchAll(PDO::FETCH_ASSOC);
                 <h2 class="text-center mb-4">Testimonios</h2>
 
                 <div class="row">
+                    <?php foreach($lista_testimonios as $testimonio) { ?>
                     <div class="col-md-6 d-flex">
                         <div class="card mb-4 w-100">
                             <div class="card-body">
-                                <p class="card-text">Muy buena comida</p>
+                                <p class="card-text"><?php echo $testimonio["opinion"]; ?></p>
                             </div>
-                            <div class="card-footer text-muted">
-                                Oscar uh
-                            </div>
+                            <div class="card-footer text-muted"><?php echo $testimonio["nombre"]; ?></div>
                         </div>
                     </div>
-                    <div class="col-md-6 d-flex">
-                        <div class="card mb-4 w-100">
-                            <div class="card-body">
-                                <p class="card-text">Muy buena comida</p>
-                            </div>
-                            <div class="card-footer text-muted">
-                                Oscar uh
-                            </div>
-                        </div>
-                    </div>
+                    <?php } ?>
                 </div>
                 
             </div>
         </section>
-
 
         <!--Menú-->
         <section class="container mt-4" id="menu">
@@ -184,60 +176,54 @@ $lista_banners=$sentencia->fetchAll(PDO::FETCH_ASSOC);
             <h2 class="text-center">Menú (nuestra recomendación)</h2>
             <br>
             <div class="row">
+
+            <?php foreach($lista_menu as $menu){ ?>
+
                 <div class="col-lg-4 col-sm-4">
                     <div class="card">
-                        <img src="images/menu/plato-ensalada.png" alt="Greek Salmon" class="card-img-top">
+                        <img src="images/menu/<?php echo $menu["foto"];?>" alt="Greek Salmon" class="card-img-top">
                         <div class="card-body">
-                            <h5 class="card-title">Bowl de Salmón griego</h5>
-                            <p class="card-text"><strong>Precio:</strong> $4.99</p>
+                            <h5 class="card-title"><?php echo $menu["nombre"]; ?></h5>
+                            <h6 class="card-title"><strong><?php echo $menu["ingredientes"]; ?></strong></h6>
+                            <p class="card-text"><strong>Precio:</strong> <?php echo $menu["precio"]; ?></p>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-sm-4">
-                    <div class="card">
-                        <img src="images/menu/plato-panqueue.png" alt="Pancake Dish" class="card-img-top">
-                        <div class="card-body">
-                            <h5 class="card-title">Plato panqueues con frutos</h5>
-                            <p class="card-text"><strong>Precio:</strong> $4.99</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-4">
-                    <div class="card">
-                        <img src="images/menu/plato-carne.png" alt="Meat and Vegetables" class="card-img-top">
-                        <div class="card-body">
-                            <h5 class="card-title">Plato de carne con verduras</h5>
-                            <p class="card-text"><strong>Precio:</strong> $4.99</p>
-                        </div>
-                    </div>
-                </div>
+
+            <?php } ?>
+
             </div>
 
         </section>
 
         <!--Contacto-->
         <section class="container mt-4" id="contacto">
+            <div class="container-fluid col-lg-12 row">
+                <div class="col-lg-6">
+                    <h2>Contacto</h2>
+                    <p>Estamos aquí para servirle</p>
 
-            <h2>Contacto</h2>
-            <p>Estamos aquí para servirle</p>
-
-            <form action="?" method="post">
-                
-                <div class="mb-3">
-                    <label for="name">Nombre:</label><br>
-                    <input type="text" class="form-control" name="nombre" placeholder="Escribe tu nombre" required><br>
+                    <form action="?" method="post">
+                        
+                        <div class="mb-3">
+                            <label for="name">Nombre:</label><br>
+                            <input type="text" class="form-control" name="nombre" placeholder="Escriba su nombre" required><br>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email">Correo electrónico:</label>
+                            <input type="email" class="form-control" name="correo" placeholder="Escriba su correo electrónico" required><br>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message">Mensaje:</label><br>
+                            <textarea name="mensaje" class="form-control" id="message" rows="6" cols="50"></textarea><br>
+                        </div>
+                        <input type="submit" class="btn btn-primary"value="Enviar mensaje">
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label for="email">Correo electrónico:</label>
-                    <input type="email" class="form-control" name="correo" placeholder="Escribe tu correo electrónico" required><br>
+                <div class="d-flex col-lg-6 align-items-center">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3543.2704633175954!2d-55.90746952490747!3d-27.367267512348846!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9457be3a4b954e33%3A0x6225064c71c3cd99!2sE.P.E.T.%20N%C2%B01%20%22UNESCO%22!5e0!3m2!1ses-419!2sar!4v1717525123408!5m2!1ses-419!2sar" width="100%" height="90%"></iframe>
                 </div>
-                <div class="mb-3">
-                    <label for="message">Mensaje:</label><br>
-                    <textarea name="mensaje" class="form-control" id="message" rows="6" cols="50"></textarea><br>
-                </div>
-                <input type="submit" class="btn btn-primary"value="Enviar mensaje">
-            </form>
-
+            </div>
         </section>
         <br><br>
 
