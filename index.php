@@ -1,5 +1,30 @@
 <?php
 
+use MercadoPago\Client\Preference\PreferenceClient;
+use MercadoPago\MercadoPagoConfig;
+
+require 'vendor/autoload.php';
+
+MercadoPagoConfig::setAccessToken("TEST-4631252351137526-110419-559d6f2ef72e7ed77d30930925f0cd2c-1423518295");
+
+$client = new PreferenceClient();
+
+$preference = $client->create([
+
+    "items" => [
+        [
+            "id" => "DEP-0001",
+            "title" => "Ensalada greca",
+            "quantity" => 1,
+            "unit_price" => 5.49
+        ],
+    ],
+
+    "statement_descriptor" => "Restaurante La Sombra",
+    "external_reference" => "CDP001"
+
+]);
+
 include("admin/bd.php");
 
 $sentencia=$conexion->prepare("SELECT * FROM tbl_banners ORDER BY id ASC limit 1");
@@ -52,9 +77,14 @@ if($_POST){
         <!-- Bootstrap CSS v5.2.1 -->
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" 
-            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" 
-        />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrencepolicy="no-referrer"/>
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous"/>
+        <link rel="stylesheet" type="text/css" href="styles.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://sdk.mercadopago.com/js/v2"></script>
+        <link 
+            rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" 
+            crossorigin="anonymous" referrencepolicy="no-referrer"/>
     </head>
 
     <body class="bg-light">
@@ -107,6 +137,45 @@ if($_POST){
 
         </section>
 
+        <!-- Carrusel -->
+        <section class="container mt-4 text-center">
+            <div class="slide">
+                <div class="slide-inner">
+                    <input class="slide-open" type="radio" id="slide-1" 
+                        name="slide" aria-hidden="true" hidden="" checked="checked">
+                    <div class="slide-item">
+                        <img src="/images/carrusel/carrusel1.jpg">
+                    </div>
+                    <input class="slide-open" type="radio" id="slide-2" 
+                        name="slide" aria-hidden="true" hidden="">
+                    <div class="slide-item">
+                        <img src="https://www.migueltroyano.com/wp-content/uploads/2020/09/postgres_copy.png">
+                    </div>
+                    <input class="slide-open" type="radio" id="slide-3" 
+                        name="slide" aria-hidden="true" hidden="">
+                    <div class="slide-item">
+                        <img src="https://www.migueltroyano.com/wp-content/uploads/2020/09/excel_guardar_como_csv.jpg">
+                    </div>
+                    <label for="slide-3" class="slide-control prev control-1">‹</label>
+                    <label for="slide-2" class="slide-control next control-1">›</label>
+                    <label for="slide-1" class="slide-control prev control-2">‹</label>
+                    <label for="slide-3" class="slide-control next control-2">›</label>
+                    <label for="slide-2" class="slide-control prev control-3">‹</label>
+                    <label for="slide-1" class="slide-control next control-3">›</label>
+                    <ol class="slide-indicador">
+                        <li>
+                            <label for="slide-1" class="slide-circulo">•</label>
+                        </li>
+                        <li>
+                            <label for="slide-2" class="slide-circulo">•</label>
+                        </li>
+                        <li>
+                            <label for="slide-3" class="slide-circulo">•</label>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
 
         <!--Bienvenida-->
         <section id="id" class="container mt-4 text-center">
@@ -217,7 +286,14 @@ if($_POST){
                             <label for="message">Mensaje:</label><br>
                             <textarea name="mensaje" class="form-control" id="message" rows="6" cols="50"></textarea><br>
                         </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="invalidCheck">
+                            <label class="form-check-label" for="invalidCheck">
+                                Deseo que me lleguen correos del menú del día.
+                            </label>
+                        </div>
                         <input type="submit" class="btn btn-primary"value="Enviar mensaje">
+                        
                     </form>
                 </div>
                 <div class="d-flex col-lg-6 align-items-center">
@@ -256,10 +332,11 @@ if($_POST){
             </div>
 
         </div>
+        <div id="wallet_container"></div>
 
-        <!--Footer-->
+        <!-- Footer -->
         <footer class="bg-dark text-light text-center py-1">
-            <!-- place footer here -->
+            place footer here
             <p> &copy; 2023 Chest Gab, todos los derechos reservados </p>
         </footer>
 
@@ -273,5 +350,23 @@ if($_POST){
             integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
             crossorigin="anonymous"
         ></script>
+        <script>
+            const mp = new MercadoPago('TEST-f2bdc11a-dcb6-4ba3-be13-3ea01f941f0d', {
+                locale: 'es-MX'
+            });
+
+            mp.bricks().create("wallet", "wallet_container", {
+                initialization: {
+                    preferenceId: "<?php echo $preference->id; ?>",
+                },
+                customization: {
+                    texts: {
+                        valueProp: 'smart_option',
+                    },
+                },
+            });
+
+        </script>
+
     </body>
 </html>

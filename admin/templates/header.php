@@ -33,6 +33,7 @@ if(!isset($_SESSION["usuario"])){
 
                     <a class="nav-item nav-link" href="<?php echo $url_base;?>seccion/banner/">Banners</a>
                     <a class="nav-item nav-link" href="<?php echo $url_base;?>seccion/colaboradores/">Colaboradores</a>
+                    <a class="nav-item nav-link" href="<?php echo $url_base;?>seccion/carrusel/">Carrusel</a>
                     <a class="nav-item nav-link" href="<?php echo $url_base;?>seccion/testimonios/">Testimonios</a>
                     <a class="nav-item nav-link" href="<?php echo $url_base;?>seccion/menu/">Menu</a>
                     <a class="nav-item nav-link" href="<?php echo $url_base;?>seccion/comentarios/">Comentarios</a>
