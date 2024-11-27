@@ -336,7 +336,6 @@ if($_POST){
 
         <!-- Footer -->
         <footer class="bg-dark text-light text-center py-1">
-            place footer here
             <p> &copy; 2023 Chest Gab, todos los derechos reservados </p>
         </footer>
 

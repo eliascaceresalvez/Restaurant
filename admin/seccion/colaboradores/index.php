@@ -21,7 +21,7 @@ if(isset($_GET['txtID'])){
     
     //borra en la base de datos
 
-    $sentencia=$conexion->prepare("DELETE FROM tbl_colaboradores WHERE ID=:id");
+    $sentencia=$conexion->prepare("DELETE FROM `tbl_colaboradores` WHERE ID=:id");
     $sentencia->bindParam(":id", $txtID);
     $sentencia->execute();
 
@@ -86,7 +86,5 @@ include("../../templates/header.php");
 </div>
 
 <?php
-
 include("../../templates/footer.php");
-
 ?>
