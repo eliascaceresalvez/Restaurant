@@ -1,6 +1,6 @@
 <?php
 session_start();
-$url_base="http://localhost/ChestGab/admin/";
+$url_base="http://localhost/Restaurant/admin/";
 if(!isset($_SESSION["usuario"])){
     header("location:".$url_base."login.php");
 }

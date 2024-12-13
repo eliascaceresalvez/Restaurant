@@ -1,0 +1,45 @@
+[33mcommit b47379a231c0e3107c298e49942799e6be857216[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: EliasMC <caceresalvezelias@gmail.com>
+Date:   Wed Nov 27 17:22:07 2024 -0300
+
+    Commit
+
+[33mcommit e3c1502eb1c6f84fcc1b0b515ae4804c53d3de89[m
+Author: EliasMC <caceresalvezelias@gmail.com>
+Date:   Wed Nov 27 17:15:48 2024 -0300
+
+    [ADD] Database mysql and CRUD for slider
+
+[33mcommit d8e62ea0d29ae74d82e7707416032a7e90a3743b[m
+Author: EliasMC <caceresalvezelias@gmail.com>
+Date:   Tue Nov 5 15:55:05 2024 -0300
+
+    Proyecto parcialmente finalizado
+
+[33mcommit 6c07e8ef47b27a0acec3dfa877f191212c5f146c[m
+Author: Elías Cáceres <91036133+eliascaceresalvez@users.noreply.github.com>
+Date:   Wed Jun 5 09:15:59 2024 -0300
+
+    [ADD] Proyecto finalizado y funcional al repositorio
+
+[33mcommit 4402d8ad5acd30ed737197d64003fca4e4f96076[m
+Author: Elías Cáceres <91036133+eliascaceresalvez@users.noreply.github.com>
+Date:   Sun May 26 18:59:13 2024 -0300
+
+    Commit Banners y Colaboradores
+    
+    Creacion de CRUD de Banners  y en proceso de Colaboradores
+
+[33mcommit 08e9422d722130061dfec090ae30221551c4ca5c[m
+Author: Elías Cáceres <91036133+eliascaceresalvez@users.noreply.github.com>
+Date:   Fri May 24 11:48:37 2024 -0300
+
+    Commit Everything until now
+    
+    Commit con los cambios y distintos añadidos
+
+[33mcommit 42c7753f49ed074f878761b00ceed4ec50bb5dc7[m
+Author: Elías Cáceres <91036133+eliascaceresalvez@users.noreply.github.com>
+Date:   Fri May 24 11:46:07 2024 -0300
+
+    Initial commit

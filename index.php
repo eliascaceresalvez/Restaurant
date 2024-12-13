@@ -1,68 +1,71 @@
 <?php
 
+include("admin/bd.php");
+
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\MercadoPagoConfig;
 
 require 'vendor/autoload.php';
 
-MercadoPagoConfig::setAccessToken("TEST-4631252351137526-110419-559d6f2ef72e7ed77d30930925f0cd2c-1423518295");
+MercadoPagoConfig::SetAccessToken('TEST-4631252351137526-110419-559d6f2ef72e7ed77d30930925f0cd2c-1423518295');
 
 $client = new PreferenceClient();
 
-$preference = $client->create([
-
-    "items" => [
-        [
-            "id" => "DEP-0001",
-            "title" => "Ensalada greca",
-            "quantity" => 1,
-            "unit_price" => 5.49
+try {
+    $preference = $client->create([
+        "items" => [
+            [
+                "id" => "DEP-0001",
+                "title" => "Ensalada Greca",
+                "quantity" => 1,
+                "unit_price" => 5.99,
+            ],
         ],
-    ],
+        "statement_descriptor" => "Restaurante La Sombra",
+        "external_reference" => "RLS001",
+    ]);
+} catch (MercadoPago\Exceptions\MPApiException $e) {
+    echo "Error: " . $e->getMessage();
+    // Ver detalles completos de la respuesta de la API
+    $response = json_decode($e->getResponse());
+    echo "<pre>";
+    print_r($response);
+    echo "</pre>";
+}
 
-    "statement_descriptor" => "Restaurante La Sombra",
-    "external_reference" => "CDP001"
+function fetchAllData($query, $params = []) {
+    global $conexion;
+    $sentencia = $conexion->prepare($query);
+    $sentencia->execute($params);
+    return $sentencia->fetchAll(PDO::FETCH_ASSOC);
+}
 
-]);
+$lista_banners = fetchAllData("SELECT * FROM tbl_banners ORDER BY id ASC limit 1");
+$lista_colaboradores = fetchAllData("SELECT * FROM tbl_colaboradores ORDER BY id ASC");
+$lista_testimonios = fetchAllData("SELECT * FROM tbl_testimonios ORDER BY id DESC limit 2");
+$lista_menu = fetchAllData("SELECT * FROM tbl_menu ORDER BY id DESC limit 4");
 
-include("admin/bd.php");
+if ($_POST) {
+    $nombre = filter_var($_POST["nombre"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $correo = filter_var($_POST["correo"], FILTER_VALIDATE_EMAIL);
+    $telefono = filter_var($_POST["telefono"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $mensaje = filter_var($_POST["mensaje"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $recibir_menu_dia = isset($_POST["menuDelDia"]) ? 1 : 0; // Captura el estado del checkbox
 
-$sentencia=$conexion->prepare("SELECT * FROM tbl_banners ORDER BY id ASC limit 1");
-$sentencia->execute();
-$lista_banners=$sentencia->fetchAll(PDO::FETCH_ASSOC);
-
-$sentencia=$conexion->prepare("SELECT * FROM tbl_colaboradores ORDER BY id ASC");
-$sentencia->execute();
-$lista_colaboradores=$sentencia->fetchAll(PDO::FETCH_ASSOC);
-
-$sentencia=$conexion->prepare("SELECT * FROM tbl_testimonios ORDER BY id DESC limit 2");
-$sentencia->execute();
-$lista_testimonios=$sentencia->fetchAll(PDO::FETCH_ASSOC);
-
-$sentencia=$conexion->prepare("SELECT * FROM tbl_menu ORDER BY id DESC limit 4");
-$sentencia->execute();
-$lista_menu=$sentencia->fetchAll(PDO::FETCH_ASSOC);
-
-if($_POST){
-
-    $nombre=filter_var($_POST["nombre"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $correo=filter_var($_POST["correo"], FILTER_VALIDATE_EMAIL);
-    $mensaje=filter_var($_POST["mensaje"], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-    if($nombre && $correo && $mensaje){
-
-        $sql="INSERT INTO tbl_comentarios (nombre, correo, mensaje) VALUES (:nombre, :correo, :mensaje)";
+    if ($nombre && $correo && $mensaje) {
+        $sql = "INSERT INTO tbl_comentarios (nombre, correo, telefono, mensaje, recibir_menu_dia) 
+        VALUES (:nombre, :correo, :telefono, :mensaje, :recibir_menu_dia)";
         $resultado = $conexion->prepare($sql);
 
         $resultado->bindParam(":nombre", $nombre, PDO::PARAM_STR);
         $resultado->bindParam(":correo", $correo, PDO::PARAM_STR);
+        $resultado->bindParam(":telefono", $telefono, PDO::PARAM_STR);
         $resultado->bindParam(":mensaje", $mensaje, PDO::PARAM_STR);
+        $resultado->bindParam(":recibir_menu_dia", $recibir_menu_dia, PDO::PARAM_INT);
         $resultado->execute();
-
     }
 
     header("location:index.php");
-
 }
 
 ?>
@@ -256,6 +259,7 @@ if($_POST){
                             <h6 class="card-title"><strong><?php echo $menu["ingredientes"]; ?></strong></h6>
                             <p class="card-text"><strong>Precio:</strong> <?php echo $menu["precio"]; ?></p>
                         </div>
+                        <div id="wallet_container"></div>
                     </div>
                 </div>
 
@@ -276,23 +280,27 @@ if($_POST){
                         
                         <div class="mb-3">
                             <label for="name">Nombre:</label><br>
-                            <input type="text" class="form-control" name="nombre" placeholder="Escriba su nombre" required><br>
+                            <input type="text" class="form-control" name="nombre" placeholder="Escriba su nombre" required>
                         </div>
                         <div class="mb-3">
                             <label for="email">Correo electrónico:</label>
-                            <input type="email" class="form-control" name="correo" placeholder="Escriba su correo electrónico" required><br>
+                            <input type="email" class="form-control" name="correo" placeholder="Escriba su correo electrónico" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email">Número telefónico:</label>
+                            <input type="phone" class="form-control" name="phone" placeholder="Escriba su teléfono" required>
                         </div>
                         <div class="mb-3">
                             <label for="message">Mensaje:</label><br>
-                            <textarea name="mensaje" class="form-control" id="message" rows="6" cols="50"></textarea><br>
+                            <textarea name="mensaje" class="form-control" id="message" rows="6" cols="50"></textarea>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="invalidCheck">
+                            <input class="form-check-input" type="checkbox" value="" id="invalidCheck" name="menuDelDia">
                             <label class="form-check-label" for="invalidCheck">
                                 Deseo que me lleguen correos del menú del día.
                             </label>
                         </div>
-                        <input type="submit" class="btn btn-primary"value="Enviar mensaje">
+                        <input type="submit" class="btn btn-primary mt-2"value="Enviar mensaje">
                         
                     </form>
                 </div>
@@ -332,11 +340,10 @@ if($_POST){
             </div>
 
         </div>
-        <div id="wallet_container"></div>
-
+        
         <!-- Footer -->
         <footer class="bg-dark text-light text-center py-1">
-            <p> &copy; 2023 Chest Gab, todos los derechos reservados </p>
+            <p> &copy; 2023 Restaurante La Sombra, todos los derechos reservados </p>
         </footer>
 
         <script
@@ -357,14 +364,15 @@ if($_POST){
             mp.bricks().create("wallet", "wallet_container", {
                 initialization: {
                     preferenceId: "<?php echo $preference->id; ?>",
+                    redirectMode: 'modal'
                 },
                 customization: {
                     texts: {
+                        action: 'buy',
                         valueProp: 'smart_option',
                     },
                 },
             });
-
         </script>
 
     </body>
