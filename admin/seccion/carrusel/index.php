@@ -3,7 +3,7 @@ include("../../bd.php");
 
 if(isset($_GET['txtID'])){
 
-    $txtID = (isset($_GET["txtID"]))?$_GET["txtID"]:"";
+    $txtID = (isset($_GET["txtID"]) && is_numeric($_GET["txtID"])) ? intval($_GET["txtID"]) : 0;
 
     $sentencia = $conexion->prepare("SELECT * FROM `tbl_carrusel` WHERE ID=:id");
     $sentencia->bindParam(":id", $txtID);
@@ -11,11 +11,12 @@ if(isset($_GET['txtID'])){
 
     $registro_foto = $sentencia->fetch(PDO::FETCH_LAZY);
 
-    if(isset($registro_foto['foto'])){
-        if(file_exists("/images/carrusel/".$registro_foto['foto'])){
-            unlink("/images/carrusel/".$registro_foto['foto']);
+    if (isset($registro_foto['foto']) && !empty($registro_foto['foto'])) {
+        $ruta_archivo = "../../images/carrusel/" . $registro_foto['foto'];
+        if (file_exists($ruta_archivo)) {
+            unlink($ruta_archivo);
         }
-    }
+    }    
 
     $sentencia=$conexion->prepare("DELETE FROM `tbl_carrusel` WHERE ID=:id");
     $sentencia->bindParam(":id", $txtID);
@@ -61,7 +62,7 @@ include("../../templates/header.php");
                             <a name="" id="" class="btn btn-info" href="editar.php?txtID=<?php echo $value['ID'] ?>" 
                             role="button">Editar</a>
                             <a name="" id="" class="btn btn-danger" href="index.php?txtID=<?php echo $value['ID'] ?>" 
-                            role="button">Borrar</a>
+                            role="button" onclick="return confirm('Esta seguro que desea eliminar este registro?')">Borrar</a>
                         </td>
                         <?php } ?>
                     </tr>

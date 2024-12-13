@@ -41,6 +41,7 @@ function fetchAllData($query, $params = []) {
 }
 
 $lista_banners = fetchAllData("SELECT * FROM tbl_banners ORDER BY id ASC limit 1");
+$lista_carrusel = fetchAllData("SELECT * FROM tbl_carrusel ORDER BY id ASC");
 $lista_colaboradores = fetchAllData("SELECT * FROM tbl_colaboradores ORDER BY id ASC");
 $lista_testimonios = fetchAllData("SELECT * FROM tbl_testimonios ORDER BY id DESC limit 2");
 $lista_menu = fetchAllData("SELECT * FROM tbl_menu ORDER BY id DESC limit 4");
@@ -144,37 +145,31 @@ if ($_POST) {
         <section class="container mt-4 text-center">
             <div class="slide">
                 <div class="slide-inner">
-                    <input class="slide-open" type="radio" id="slide-1" 
-                        name="slide" aria-hidden="true" hidden="" checked="checked">
-                    <div class="slide-item">
-                        <img src="/images/carrusel/carrusel1.jpg">
-                    </div>
-                    <input class="slide-open" type="radio" id="slide-2" 
-                        name="slide" aria-hidden="true" hidden="">
-                    <div class="slide-item">
-                        <img src="https://www.migueltroyano.com/wp-content/uploads/2020/09/postgres_copy.png">
-                    </div>
-                    <input class="slide-open" type="radio" id="slide-3" 
-                        name="slide" aria-hidden="true" hidden="">
-                    <div class="slide-item">
-                        <img src="https://www.migueltroyano.com/wp-content/uploads/2020/09/excel_guardar_como_csv.jpg">
-                    </div>
-                    <label for="slide-3" class="slide-control prev control-1">‹</label>
-                    <label for="slide-2" class="slide-control next control-1">›</label>
-                    <label for="slide-1" class="slide-control prev control-2">‹</label>
-                    <label for="slide-3" class="slide-control next control-2">›</label>
-                    <label for="slide-2" class="slide-control prev control-3">‹</label>
-                    <label for="slide-1" class="slide-control next control-3">›</label>
+                    <?php foreach ($lista_carrusel as $index => $carrusel): ?>
+                        <input class="slide-open" type="radio" id="slide-<?php echo $index + 1; ?>" 
+                            name="slide" aria-hidden="true" hidden="" <?php echo $index === 0 ? 'checked="checked"' : ''; ?>>
+                        <div class="slide-item">
+                            <img src="images/carrusel/<?php echo $carrusel['imagen']; ?>" alt="<?php echo $carrusel['titulo']; ?>">
+                            <?php if (!empty($carrusel['titulo'])): ?>
+                                <h3><?php echo $carrusel['titulo']; ?></h3>
+                                <p><?php echo $carrusel['descripcion']; ?></p>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
+
+                        <?php for ($i = 0; $i < count($lista_carrusel); $i++): ?>
+                            <label for="slide-<?php echo ($i === 0 ? count($lista_carrusel) : $i); ?>" 
+                                class="slide-control prev control-<?php echo $i + 1; ?>">‹</label>
+                            <label for="slide-<?php echo ($i === count($lista_carrusel) - 1 ? 1 : $i + 2); ?>" 
+                                class="slide-control next control-<?php echo $i + 1; ?>">›</label>
+                        <?php endfor; ?>
+
                     <ol class="slide-indicador">
-                        <li>
-                            <label for="slide-1" class="slide-circulo">•</label>
-                        </li>
-                        <li>
-                            <label for="slide-2" class="slide-circulo">•</label>
-                        </li>
-                        <li>
-                            <label for="slide-3" class="slide-circulo">•</label>
-                        </li>
+                        <?php foreach ($lista_carrusel as $index => $carrusel): ?>
+                            <li>
+                                <label for="slide-<?php echo $index + 1; ?>" class="slide-circulo">•</label>
+                            </li>
+                        <?php endforeach; ?>
                     </ol>
                 </div>
             </div>
